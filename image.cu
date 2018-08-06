@@ -3,47 +3,48 @@
 #include "wb.h"
 #include<cuda_runtime_api.h>
 
-#define BLUR_SIZE 5
+#define BLUR_SIZE 3
+#define THREADS 16
 
 //@@ INSERT CODE HERE
 
-__global__ void Blurr(float *input, float *output, int width, int height)
-{
-   int idx = blockIdx.x * blockDim.x + threadIdx.x;
-   int idy = blockIdx.y * blockDim.y + threadIdx.y;
+__global__ void Gaussian(float *input, float *output, int width, int height) {
 
-   if(idx<width && idy<height)
-    {
-	float sum = input[idx*width+idy];
-  
-	if(idx>0 && idy>0)
-    	sum += input[(idx-1)*width+(idy-1)];
+        __shared__ float temp[THREADS + 2][THREADS + 2];
+        int x = threadIdx.x + blockIdx.x * blockDim.x;
+        int y = threadIdx.y + blockIdx.y * blockDim.y;
+        int tx = threadIdx.x;
+        int ty = threadIdx.y;
+        float conv_res = 0;
 
-  	if(idx>0)
-    	sum += input[(idx-1)*width+idy];
+        if (tx == 0 || ty == 0 || tx == THREADS - 1 || ty == THREADS - 1) {
 
-  	if(idx<width-1)
-    	sum += input[(idx+1)*width+idy];
+                temp[ty][tx] = (y>0&&x>0)?input[(y - 1)*width + x - 1]:0;
+                temp[ty][tx+1] = (y>0)?input[(y-1)*width + x]:0;
+                temp[ty][tx+2] = (y>0&&x<width)?input[(y - 1)*width+x+1]:0;
+                temp[ty+1][tx] = (x>0)?input[y*width + x - 1]:0;
+                temp[ty + 1][tx + 1] = input[y*width + x];
+                temp[ty + 1][tx + 2] = (x<width)?input[y*width + x + 1]:0;
+                temp[ty+2][tx] = (y<height&&x>0)?input[(y + 1)*width + x - 1]:0;
+                temp[ty + 2][tx + 1] = (y<height)?input[(y + 1)*width + x]:0;
+                temp[ty+2][tx+2] = (y<height&&x<width)?input[(y + 1)*width + x + 1]:0;
+        }
+        else {
+                temp[ty+1][tx+1] = input[(y*width) + x];
+        }
 
-  	if(idx<width-1 && idy<height-1)
-    	sum += input[(idx+1)*width+idy+1];
+        __syncthreads();
 
-  	if(idx<width && idy>0)
-    	sum += input[(idx+1)*width+idy-1];
+        for (int i = 0; i < BLUR_SIZE; i++) {
+                for (int j = 0; j < BLUR_SIZE; j++) {
+                        conv_res += temp[ty + i][tx + j];
+                }
+        }
+        conv_res = (float)conv_res / (float)(BLUR_SIZE*BLUR_SIZE);
 
-  	if(idy>0)
-   	sum += input[idx*width+idy-1];
-
-  	if(idy<height)
-    	sum += input[idx*width+idy+1];
-
-  	if(idx>0 && idy<height)
-    	sum += input[(idx-1)*width+idy+1];
-
-  	output[idx*width+idy] = sum / (float)(BLUR_SIZE*BLUR_SIZE);
-
- }   
-}		
+        output[y*width + x] = conv_res;
+}
+		
 
 
 
@@ -105,12 +106,12 @@ int main(int argc, char *argv[]) {
   ///////////////////////////////////////////////////////
   wbTime_start(Compute, "Doing the computation on the GPU");
 
-  dim3 blockSize = (15, 15, 1);
-  dim3 gridSize = ((int)ceil(imageWidth/(float)blockSize.x), (int)ceil(imageHeight/(float)blockSize.y), 1);
-
-  Blurr<<<gridSize,blockSize>>>(hostInputImageData, hostOutputImageData, imageWidth, imageHeight);
-
-  wbTime_stop(Compute, "Doing the computation on the GPU");
+   dim3 blockDim(16, 16, 1);
+   dim3 gridDim((int)ceil((float)(imageWidth) / blockDim.x), (int)ceil((float)(imageHeight) / blockDim.y), 1);
+		
+   Gaussian << <gridDim, blockDim >> >(deviceInputImageData, deviceOutputImageData, imageWidth, imageHeight);
+ 
+    wbTime_stop(Compute, "Doing the computation on the GPU");
 
   ///////////////////////////////////////////////////////
   wbTime_start(Copy, "Copying data from the GPU");
@@ -121,17 +122,17 @@ int main(int argc, char *argv[]) {
 
   wbTime_stop(GPU, "Doing GPU Computation (memory + compute)");
  
-  wbImage_save(outputImage, "convoluted.ppm");
+  //wbImage_save(outputImage, "convoluted.ppm");
 
-  //wbSolution(argv, outputImage);
+ // wbSolution(args, 5, outputImage);
+
+  printf("Success!!\n");
 
   cudaFree(deviceInputImageData);
   cudaFree(deviceOutputImageData);
 
   wbImage_delete(outputImage);
   wbImage_delete(inputImage);
-
- 
 
   return 0;
 }
