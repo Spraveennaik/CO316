@@ -37,9 +37,8 @@ static void create_dataset(int datasetNum, size_t input_length, size_t num_bins)
   std::string x;
   x.push_back(datasetNum + '0');
 
-  //const char *dir_name =
-     // wbDirectory_create(wbPath_join(base_dir, x.c_str()));
-                     //
+   
+   
   string y = x;
   x.append("input.raw");
   y.append("output.raw");

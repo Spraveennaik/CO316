@@ -37,15 +37,13 @@ static void create_dataset(int datasetNum, size_t input_length, size_t num_bins)
   std::string x;
   x.push_back(datasetNum + '0');
 
-  //const char *dir_name =
-     // wbDirectory_create(wbPath_join(base_dir, x.c_str()));
-                     //
+
+
+
   string y = x;
   x.append("input.raw");
   y.append("output.raw");
-
-  //char *input_file_name  = x.c_str();				
-  //char *output_file_name = y.c_str();					
+					
 
   unsigned int *input_data = generate_data(input_length, num_bins);
   unsigned int *output_data =
@@ -64,7 +62,7 @@ static void create_dataset(int datasetNum, size_t input_length, size_t num_bins)
 }
 
 int main() {
-  //base_dir = wbPath_join(wbDirectory_current(), "Histogram", "Dataset");
+
 
   create_dataset(0, 16, NUM_BINS);
   create_dataset(1, 1024, NUM_BINS);

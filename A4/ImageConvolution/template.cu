@@ -24,17 +24,15 @@ unsigned char * getArrayFromPpm(const char * filename,int *imageHeight,int *imag
   string s;
   ifstream inFile(filename);
   getline(inFile,s);
-  // cout<<s<<"\n";
+ 
   getline(inFile,s);
-  // cout<<s<<"\n";
   inFile >> *imageWidth;
-  // cout<<*imageWidth<<"\n";
+ 
   inFile >> *imageHeight;
-  // cout<<*imageHeight<<"\n";
+ 
   int t = 0;
   inFile >> t;
-  // cout<<t<<"\n";
-  int temp;
+   int temp;
   unsigned char * conts = (unsigned char *) malloc((*imageHeight) * (*imageWidth) * 3 * sizeof(unsigned char));
   int i=0;
   while(inFile >> temp){
@@ -51,8 +49,7 @@ float * getArrayFromMask(const char * filename){
   float * conts = (float *) malloc(5 * 5 * sizeof(float));
   int i=0;
   while(inFile>>temp){
-  	// inFile.read((char*)&temp, sizeof(float));
-    // cout<<temp<<" temp\n";
+
     conts[i++] = temp;
   }
 
@@ -70,82 +67,24 @@ void wbSolution(const wbArg_t& args, const unsigned char* image)
 
         for (int i = 0; i < imageHeight*imageWidth*3; ++i)
         {
-                    // cout<<solnImage[i]<<" : "<<image[i]<<"\n";
-        			// const float error = fabs(solnImage[i] - image[i]);
+
+
                     if (solnImage[i] != image[i])
                     {
                         if (errCnt < wbInternal::kErrorReportLimit)
                             std::cout << "Image pixels do not match at position (" << i << "). [" << (int)image[i] << ", " <<  (int)solnImage[i] << "]\n";
                         ++errCnt;
-                    }
-        }
+                    }       }
 
         if (!errCnt)
             std::cout << "Solution is correct." << std::endl;
         else
             std::cout << errCnt << " tests failed!" << std::endl;
-    // }
-
-    // wbImage_delete(solnImage);
+    
+    
 }
 
 //@@ INSERT CODE HERE
-
-
-// unsigned char * compute(unsigned char *data, float *mask, int height,
-//              int width) {
-
-//   const int num_channels = 3;
-
-//   float inputData[height * width * num_channels];
-//   for(int i =0 ;i<height*width*num_channels;++i){
-//       inputData[i] = ((int)data[i])/255.0;
-//   }
-
-//   float *outputData = (float *) malloc(height*width*3*sizeof(float));
-
-//   int img_width  = width;
-//   int img_height = height;
-//   int mask_rows = 5;
-//   int mask_cols = 5;
-//   int mask_radius_y = mask_rows / 2; // 5 X 5 mask matrix is fixed
-//   int mask_radius_x = mask_cols / 2;
-//   for (int out_y = 0; out_y < img_height; ++out_y) {
-//     for (int out_x = 0; out_x < img_width; ++out_x) {
-//       for (int c = 0; c < num_channels; ++c) { // channels
-//         float acc = 0;
-//         for (int off_y = -mask_radius_y; off_y <= mask_radius_y; ++off_y) {
-//           for (int off_x = -mask_radius_x; off_x <= mask_radius_x;
-//                ++off_x) {
-//             int in_y   = out_y + off_y;
-//             int in_x   = out_x + off_x;
-//             int mask_y = mask_radius_y + off_y;
-//             int mask_x = mask_radius_x + off_x;
-//             if (in_y < img_height && in_y >= 0 && in_x < img_width &&
-//                 in_x >= 0) {
-//               acc +=
-//                   (inputData[(in_y * img_width + in_x) * num_channels + c]) *
-//                   mask[mask_y * mask_cols + mask_x];
-//                   // cout<<mask[mask_y * mask_cols + mask_x]<<"\n";
-//             } else {
-//               acc += 0.0f;
-//             }
-//           }
-//         }
-//         // fprintf(stderr, "%f %f\n", clamp(acc));
-//         cout<<"acc : "<<acc<<"\n";
-//         outputData[(out_y * img_width + out_x) * num_channels + c] =
-//             clamp(acc);
-//       }
-//     }
-//   }
-//   unsigned char *output = (unsigned char *) malloc(height*width*3*sizeof(unsigned char));
-//   for(int i =0;i<height*width*num_channels;++i){
-//       output[i] = (unsigned char) floor(outputData[i] * 255);
-//       // cout<<i<<" helloo "<<outputData[i]<<"\n";
-//   }
-//   return output;
-// }
 
 static void write_data(const char *file_name, unsigned char *data,
                        unsigned int width, unsigned int height,
@@ -163,34 +102,6 @@ static void write_data(const char *file_name, unsigned char *data,
 }
 
 
-// // using global memory kernel
-
-// __global__ 
-// void convolution(float * deviceInputImageData, float *deviceMaskData,unsigned char *deviceOutputImageData,int imageChannels,int imageWidth,int imageHeight){
-// 	int y = blockIdx.y*blockDim.y + threadIdx.y;
-// 	int x = blockIdx.x*blockDim.x + threadIdx.x;
-
-//     if(y < imageHeight && x < imageWidth){
-
-//         	float acc = 0;
-// 	        for (int off_y = -mask_radius; off_y <= mask_radius; ++off_y) {
-// 	          for (int off_x = -mask_radius; off_x <= mask_radius;++off_x) {
-// 	            int in_y   = y + off_y;
-// 	            int in_x   = x + off_x;
-// 	            int mask_y = mask_radius + off_y;
-// 	            int mask_x = mask_radius + off_x;
-// 	            if (in_y < imageHeight && in_y >= 0 && in_x < imageWidth && in_x >= 0) {
-// 	              acc += deviceInputImageData[(in_y * imageWidth + in_x)] * deviceMaskData[mask_y * mask_width + mask_x];
-// 	            } else {
-// 	              acc += 0.0f;
-// 	            }
-// 	          }
-// 	        }
-// 	        // deviceOutputImageData[(y * imageWidth + x) * imageChannels + c] = (deviceInputImageData[(y * imageWidth + x) * imageChannels + c]);    
-
-// 	        deviceOutputImageData[(y * imageWidth + x)] = (unsigned char)(floor(clamp(acc)*255));    
-//     }
-// }
 
 __global__ 
 void convolution(float * deviceInputImageData, const float * __restrict__ deviceMaskData,unsigned char *deviceOutputImageData,int imageChannels,int imageWidth,int imageHeight){
@@ -231,9 +142,8 @@ void convolution(float * deviceInputImageData, const float * __restrict__ device
 			          }
 			    }
 
-			    // __syncthreads();
-			        // deviceOutputImageData[(y * imageWidth + x) * imageChannels + c] = (deviceInputImageData[(y * imageWidth + x) * imageChannels + c]);    
-
+			    
+			        
 			    deviceOutputImageData[(y * imageWidth + x)] = (unsigned char)(floor(clamp(acc)*255.0));    
 	    }
     }
@@ -282,15 +192,13 @@ void mergeColors(unsigned char *red_channel, unsigned char *green_channel,unsign
 
 int main(int argc, char *argv[]) {
   wbArg_t arg;
-  int maskRows;
-  int maskColumns;
+ 
   int imageChannels;
   int imageWidth;
   int imageHeight;
   char *inputImageFile;
   char *inputMaskFile;
-  // wbImage_t inputImage;
-  // wbImage_t outputImage;
+  
   unsigned char *tempInputImage;
   float *hostInputImageData;
   unsigned char *hostOutputImageData;
@@ -315,15 +223,9 @@ int main(int argc, char *argv[]) {
   inputMaskFile  = wbArg_getInputFile(arg, 2);
 
   hostMaskData = getArrayFromMask(inputMaskFile);
-  // cout<<"MAsk : \n";
-  // for(int i =0;i<5;++i){
-  // 	for(int j=0;j<5;++j){
-  // 		cout<<hostMaskData[i*5+j]<<" ";
-  // 	}
-  // 	cout<<"\n";
-  // }
+  
   tempInputImage =  getArrayFromPpm(inputImageFile,&imageHeight,&imageWidth);
-  // cout<<(int)tempInputImage[0]<<"\n";
+  
   imageChannels = 3;
   
 
@@ -372,7 +274,7 @@ int main(int argc, char *argv[]) {
   // dim3 dimGrid(2,2,1);
   dim3 dimGrid(gridsx,gridsy,1);
   
-  // cout<<hostInputImageData<<" : "<<
+ 
 
   split<<<dimGrid,dimBlock>>>(deviceInputImageData,deviceInputRed,deviceInputGreen,
   								deviceInputBlue,imageWidth,imageHeight);
@@ -390,7 +292,7 @@ int main(int argc, char *argv[]) {
   mergeColors<<<dimGrid,dimBlock>>>(deviceOutputRed,deviceOutputGreen,deviceOutputBlue,
   									 deviceOutputImageData,imageWidth,imageHeight);
 
-  // hostOutputImageData =  compute(tempInputImage,hostMaskData,imageHeight,imageWidth);
+ 
   wbTime_stop(Compute, "Doing the computation on the GPU");
 
   wbTime_start(Copy, "Copying data from the GPU");
@@ -402,15 +304,12 @@ int main(int argc, char *argv[]) {
 
   wbTime_stop(GPU, "Doing GPU Computation (memory + compute)");
 
-  // cout<<hostInputImageData[0]<<" : "<<(int)hostOutputImageData[0]<<"\n";
+ 
 
   wbSolution(arg, hostOutputImageData); //changed def in wb.h
 
-  // //@@ Insert code here
 
-  // free(hostMaskData);
-  // wbImage_delete(outputImage);
-  // wbImage_delete(inputImage);
+ 
 
   return 0;
 }

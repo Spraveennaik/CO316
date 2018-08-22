@@ -6,31 +6,6 @@ using namespace std;
 static char baseDir[200];
 
 
-// char *generateInput(int datasetNum, char *dirName,
-//                     wbGenerateParams_t params) {
-//   char *input_file_name = wbPath_join(dirName, "input0.ppm");
-//   wbDataset_generate(input_file_name, wbExportKind_ppm, params);
-//   return input_file_name;
-// }
-
-// char *generateMask(int datasetNum, char *dirName) {
-//   // Mask generation parameters
-//   wbRaw_GenerateParams_t raw_params;
-//   raw_params.rows   = 5;
-//   raw_params.cols   = 5;
-//   raw_params.minVal = 0;
-//   raw_params.maxVal = 1.0f / 25.0f;
-//   raw_params.type   = wbType_float;
-
-//   // Generation parameters are just the image generation parameters
-//   wbGenerateParams_t params;
-//   params.raw = raw_params;
-
-//   char *mask_file_name = wbPath_join(dirName, "input1.raw");
-//   wbDataset_generate(mask_file_name, wbExportKind_raw, params);
-//   return mask_file_name;
-// }
-
 float clamp(float x) {
   return std::min(std::max(x, 0.0f), 1.0f);
 }
@@ -71,13 +46,11 @@ unsigned char * compute(unsigned char *data, float *mask, int height,
                   inputData[(in_y * img_width + in_x) * num_channels + c] *
                   mask[mask_y * mask_cols + mask_x];
             } 
-            // else {
-            //   acc += 0.0f;
-            // }
+            
             
           }
         }
-        // fprintf(stderr, "%f %f\n", clamp(acc));
+     
         outputData[(out_y * img_width + out_x) * num_channels + c] =
             clamp(acc);
       }
@@ -91,11 +64,7 @@ unsigned char * compute(unsigned char *data, float *mask, int height,
 }
 float *generate_data_mask(const unsigned int y,
                                     const unsigned int x) {
-  /* raster of y rows
-     R, then G, then B pixel
-     if maxVal < 256, each channel is 1 byte
-     else, each channel is 2 bytes
-  */
+ 
   unsigned int i;
 
   const int maxVal = 5;
@@ -110,11 +79,6 @@ float *generate_data_mask(const unsigned int y,
 }
 static unsigned char *generate_data(const unsigned int y,
                                     const unsigned int x) {
-  /* raster of y rows
-     R, then G, then B pixel
-     if maxVal < 256, each channel is 1 byte
-     else, each channel is 2 bytes
-  */
   unsigned int i;
 
   const int maxVal    = 256;
@@ -139,10 +103,10 @@ static void write_data(const char *file_name, unsigned char *data,
     fprintf(handle, "#Created by %s\n", __FILE__);
     fprintf(handle, "%d %d\n", width, height);
     fprintf(handle, "255\n");
-    // fwrite(data, width * channels * sizeof(unsigned char), height, handle);
+    
     for(int i=0;i<width*height*channels;++i){
     	fprintf(handle,"%u ",data[i]);
-    	// cout<<"hi : "<<" "<<i<<" "<<height<<" "<<width<<" "<<channels<<" "<<(int)data[i]<<"\n";
+    
     }
   fflush(handle);
   fclose(handle);
@@ -155,7 +119,7 @@ static void write_data_mask(const char *file_name, float *data,
       for(int i=0;i<width*channels;++i){
           fprintf(handle,"%f ",data[j*width + i]);
       }
-      // fprintf(handle,"\n");
+     
       }  
   fflush(handle);
   fclose(handle);
@@ -192,7 +156,7 @@ void generate(int datasetNum, int height, int width, int minVal,
 }
 
 int main(void) {
-  // getcwd(baseDir,sizeof(baseDir));
+  
   generate(0, 64, 64, 0, 1);
   generate(1, 128, 64, 0, 1);
   generate(2, 64, 128, 0, 1);

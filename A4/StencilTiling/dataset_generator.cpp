@@ -22,7 +22,7 @@ static void compute(unsigned char *out, unsigned char *in, int width,
                   in(i, j - 1, k) + in(i + 1, j, k) + in(i - 1, j, k) -
                   6 * in(i, j, k);
         res = Clamp(res, 0, MAX_VAL);
-        // printf("%d\n", res);
+     
         out(i, j, k) = res;
       }
     }
@@ -56,10 +56,7 @@ static void write_data(char *file_name, unsigned char *data, int width,
 
 static void create_dataset(int datasetNum, int width, int height, int depth) {
 
-  //const char *dir_name =  wbDirectory_create(wbPath_join(base_dir, datasetNum));
-
-  //char *input_file_name  = wbPath_join(dir_name, "input.ppm");
-  //char *output_file_name = wbPath_join(dir_name, "output.ppm");
+  
 
   char *input_file_name = "input.ppm";
   char *output_file_name = "output.ppm";
@@ -75,7 +72,7 @@ static void create_dataset(int datasetNum, int width, int height, int depth) {
 }
 
 int main() {
-  //base_dir = wbPath_join(wbDirectory_current(), "Stencil", "Dataset");
+  
   create_dataset(0, 1024, 1024, 4);
   create_dataset(1, 1024, 2048, 5);
   create_dataset(2, 1023, 9, 1048);
@@ -84,6 +81,6 @@ int main() {
   create_dataset(5, 1003, 9, 1024);
   create_dataset(6, 6, 1021, 1241);
   create_dataset(7, 9, 9, 1241);
-  //create_dataset(8, 1921, 19, 1241);
+  
   return 0;
 }

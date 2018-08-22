@@ -20,9 +20,8 @@ inline void gpuAssert(cudaError_t code, const char *file, int line,
 __global__ void hist(unsigned int* input, unsigned int* bins, int length)
 {
   int i = blockIdx.x * blockDim.x + threadIdx.x;
-      //bins[input[i]] = 100;
-  if(i < length)// && bins[input[i]] < 127)
-  {
+
+  if(i < length)  {
     atomicAdd(&bins[input[i]], 1);
   }
 }

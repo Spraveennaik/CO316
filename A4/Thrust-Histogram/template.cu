@@ -17,22 +17,11 @@ int main(int argc, char *argv[])
   unsigned int *hostInput, *hostBins;
 
   args = wbArg_read(argc, argv);
-  //FILE *output = fopen(argv[2],"r");
-  //FILE *input = fopen(argv[1],"r");
-
-  //fscanf(input, "%d", &inputLength);
-  //cout<<"Input length: "<<inputLength<<endl;
-
+  
   wbTime_start(Generic, "Importing data and creating memory on host");
   hostInput = wbImport(wbArg_getInputFile(args, 0),&inputLength);
 
-  //hostInput = (unsigned int*) malloc(inputLength*sizeof(unsigned int));
-  //for (int i=1;i<=inputLength;i++) 
-  //{
-  //    fscanf(input, "%d", &hostInput[i]);
-  //      if(i==1 || i== inputLength)
-  //          cout<<hostInput[i]<<endl;
-  //}  
+  
   wbTime_stop(Generic, "Importing data and creating memory on host");
 
   wbLog(TRACE, "The input length is ", inputLength);
@@ -49,7 +38,7 @@ int main(int argc, char *argv[])
   //num_bins = deviceInput.back() + 1;
   
 
-  //cout<<deviceInput[0]<<" "<<deviceInput.back()<<deviceInput.size()<<endl;
+
   num_bins = deviceInput.back() + 1;
   hostBins = (unsigned int *)malloc(num_bins * sizeof(unsigned int));
 
